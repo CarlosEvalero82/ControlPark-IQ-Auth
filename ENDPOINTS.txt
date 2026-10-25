@@ -1,0 +1,69 @@
+==============================================================================
+ControlPark-IQ · API de autenticación
+Evidencia GA7-220501096-AA5-EV02 · API (testing con Postman)
+Aprendiz: Carlos Eduardo Valero · Ficha 3235898
+Instructora: Adriana Milena Rangel Márquez
+Repositorio: https://github.com/CarlosEvalero82/ControlPark-IQ-Auth
+==============================================================================
+
+URL BASE (local):  http://localhost:8080
+Formato:           JSON (Content-Type: application/json)
+Tecnología:        Java 17 · Spring Boot 3.3.5 · MySQL 8 · BCrypt
+
+------------------------------------------------------------------------------
+1) REGISTRO DE USUARIO
+------------------------------------------------------------------------------
+Método y URL:   POST  http://localhost:8080/api/auth/registro
+
+Cuerpo (JSON):
+{
+    "usuario": "porteria.torre1",
+    "contrasena": "Parque2026",
+    "rol": "PORTERIA"
+}
+  - usuario:    obligatorio · 4 a 20 caracteres · letras, números, "." o "_" · único
+  - contrasena: obligatoria · 8 a 64 caracteres · al menos una letra y un número
+  - rol:        opcional · ADMINISTRADOR, PORTERIA o RESIDENTE (por defecto RESIDENTE)
+
+Respuestas:
+  201 Created      {"exito": true,  "mensaje": "Usuario registrado correctamente"}
+  400 Bad Request  {"exito": false, "mensaje": "Datos inválidos", "errores": [...]}
+  400 Bad Request  {"exito": false, "mensaje": "El cuerpo de la petición no es un JSON válido o tiene valores no permitidos"}
+  409 Conflict     {"exito": false, "mensaje": "El usuario ya existe"}
+
+------------------------------------------------------------------------------
+2) INICIO DE SESIÓN
+------------------------------------------------------------------------------
+Método y URL:   POST  http://localhost:8080/api/auth/login
+
+Cuerpo (JSON):
+{
+    "usuario": "porteria.torre1",
+    "contrasena": "Parque2026"
+}
+
+Respuestas:
+  200 OK            {"exito": true,  "mensaje": "Autenticación satisfactoria"}
+  400 Bad Request   {"exito": false, "mensaje": "Datos inválidos", "errores": [...]}
+  401 Unauthorized  {"exito": false, "mensaje": "Error en la autenticación"}
+                    (mismo mensaje si falla el usuario, la contraseña o el usuario está inactivo)
+
+------------------------------------------------------------------------------
+3) OTRAS RESPUESTAS DEL SERVICIO (manejo por defecto de Spring Boot)
+------------------------------------------------------------------------------
+  405 Method Not Allowed          GET u otro método distinto de POST en los endpoints
+  415 Unsupported Media Type      Content-Type distinto de application/json
+  404 Not Found                   Ruta que no existe (por ejemplo /api/auth/logout)
+
+------------------------------------------------------------------------------
+4) EJEMPLOS CON CURL (opcional, alternativa a Postman)
+------------------------------------------------------------------------------
+curl -X POST http://localhost:8080/api/auth/registro -H "Content-Type: application/json" -d "{\"usuario\":\"porteria.torre1\",\"contrasena\":\"Parque2026\",\"rol\":\"PORTERIA\"}"
+
+curl -X POST http://localhost:8080/api/auth/login -H "Content-Type: application/json" -d "{\"usuario\":\"porteria.torre1\",\"contrasena\":\"Parque2026\"}"
+
+------------------------------------------------------------------------------
+5) ARCHIVOS DE POSTMAN
+------------------------------------------------------------------------------
+  postman/ControlPark-IQ-Auth.postman_collection.json   Colección con 19 pruebas automáticas
+  postman/ControlPark-IQ-Local.postman_environment.json Entorno (variable baseUrl)
